@@ -18,11 +18,21 @@ class Person:
         delta = next_birthday - today
         return delta.days
 
+class FamilyMember(Person):
+    def __init__(self, name, birth_date, relationship):
+        super().__init__(name, birth_date)
+        self.relationship = relationship
+
+    def get_description(self):
+        return f"{self.name} is my {self.relationship}"
+
 def main():
     print("--- Birthday Reminder App ---")
-    friend = Person("Jonas", "1995-05-20")
-    print(f"Name: {friend.name}")
-    print(f"Days until birthday: {friend.days_until_birthday()}")
+    
+    member = FamilyMember("Marija", "1970-10-15", "Mother")
+    
+    print(member.get_description())
+    print(f"Days until birthday: {member.days_until_birthday()}")
 
 if __name__ == "__main__":
     main()
