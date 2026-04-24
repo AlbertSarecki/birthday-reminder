@@ -1,48 +1,38 @@
-import datetime
-from abc import ABC, abstractmethod
+import os
+from models import Person, FamilyMember
 
-class BirthdayEntity(ABC):
-    @abstractmethod
-    def get_description(self):
-        pass
-
-class Person(BirthdayEntity):
-    def __init__(self, name, birth_date):
-        self.name = name
-        self.__birth_date = datetime.datetime.strptime(birth_date, "%Y-%m-%d").date()
-
-    def get_birth_date(self):
-        return self.__birth_date
-
-    def days_until_birthday(self):
-        today = datetime.date.today()
-        next_birthday = self.__birth_date.replace(year=today.year)
-        if next_birthday < today:
-            next_birthday = next_birthday.replace(year=today.year + 1)
-        return (next_birthday - today).days
-
-    def get_description(self):
-        return f"Friend: {self.name}"
-
-class FamilyMember(Person):
-    def __init__(self, name, birth_date, relationship):
-        super().__init__(name, birth_date)
-        self.relationship = relationship
-
-    def get_description(self):
-        return f"Family Member: {self.name} ({self.relationship})"
+def load_birthdays(filename):
+    entities = []
+    # Gauname pilną kelią iki šio failo vietos
+    base_path = os.path.dirname(__file__)
+    file_path = os.path.join(base_path, filename)
+    
+    try:
+        with open(file_path, 'r', encoding='utf-8') as file:
+            for line in file:
+                parts = line.strip().split(',')
+                if len(parts) == 3:
+                    entities.append(FamilyMember(parts[0], parts[1], parts[2]))
+                elif len(parts) == 2:
+                    entities.append(Person(parts[0], parts[1]))
+    except FileNotFoundError:
+        print(f"Klaida: Failas {filename} nerastas!")
+    except Exception as e:
+        print(f"Įvyko klaida: {e}")
+    return entities
 
 def main():
-    print("--- Birthday Reminder App ---")
+    print("--- Gimtadienių priminimo programa ---")
     
+    # Nurodome tik failo pavadinimą, nes os.path viršuje suras teisingą kelią
+    data = load_birthdays("birthdays.txt")
     
-    entities = [
-        Person("Jonas", "1995-05-20"),
-        FamilyMember("Marija", "1970-10-15", "Mother")
-    ]
-    
-    for entity in entities:
-        print(f"{entity.get_description()} | Days left: {entity.days_until_birthday()}")
+    if not data:
+        print("Duomenų failas tuščias arba nerastas.")
+        return
+
+    for entity in data:
+        print(f"{entity.get_description()} | Likusios dienos: {entity.days_until_birthday()}")
 
 if __name__ == "__main__":
     main()
